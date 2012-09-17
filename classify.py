@@ -49,9 +49,9 @@ input_features = [
 statuses = {
     "open": 1,
     "not a real question": 2,
-    "not constructive": 2,
-    "off topic": 2,
-    "too localized": 2
+    "not constructive": 3,
+    "off topic": 4,
+    "too localized": 5
 }
 
 
@@ -92,6 +92,8 @@ if __name__ == "__main__":
 
     test_df = get_dataframe("./train-sample.csv")
     test_ff = extract_features(input_features, test_df)
+
+    # split ~140k into ~100k training and ~40k test
     ff_train, ff_val = split_dataframe(test_ff)
 
     print("Training...")
@@ -101,6 +103,8 @@ if __name__ == "__main__":
     vectorizer = CountVectorizer()
     train_counts = vectorizer.fit_transform(ff_train["BodyMarkdown"])
     tfidf_transformer = TfidfTransformer()
+
+    # 98190x285052
     train_tfidf_table = tfidf_transformer.fit_transform(train_counts)
 
     clf = LinearSVC().fit(train_tfidf_table, ff_train["OpenStatus"])
