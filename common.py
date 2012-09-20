@@ -8,11 +8,11 @@ Created on Thu Sep 20 23:00:26 2012
 
 import getpass
 import pandas
-
+import math
 import numpy as np
 
 DATA_PATH = ''
-if getpass.getuser()=='marat':
+if getpass.getuser() == 'marat':
     DATA_PATH = '/home/marat/kaggle.com/stackoverflow-data/'
 
 input_features = [
@@ -39,15 +39,17 @@ statuses = {
     "not constructive": 2,
     "off topic": 3,
     "too localized": 4
-}    
-    
+}
+
+
 def get_dataframe(filename):
     dataframe = pandas.io.parsers.read_csv(filename)
-    return dataframe    
-    
+    return dataframe
+
 
 def status_to_number(status):
     return statuses[status]
+
 
 def extract_features(features, df):
     ff = pandas.DataFrame(index=df.index)
@@ -59,11 +61,26 @@ def extract_features(features, df):
                 ff = ff.join(df[feature])
     return ff
 
+
 def mcll(predicted, actual):
-    '''Calculate MCLL
-    
-    predicted -- numpy array(NxM) of probabilites where N -- num of obs and M is number of classes
-    
-    actual -- iterable integer 1-d array of actual classes'''      
-    predicted = predicted/predicted.sum(1)[:,np.newaxis] #normalize
-    return -np.sum(np.log(predicted[np.arange(predicted.shape[0]),actual]))/predicted.shape[0]
+    """Calculate MCLL
+
+    predicted -- numpy array(NxM) of probabilites,
+        where N -- num of obs and M is number of classes
+
+    actual -- iterable integer 1-d array of actual classes
+    """
+    predicted = predicted / predicted.sum(1)[:, np.newaxis]  # normalize
+    return - np.sum(np.log(predicted[np.arange(predicted.shape[0]), actual])) / predicted.shape[0]
+
+
+def mcll_alternative(probs, observations):
+    """
+    TODO: find out why its output differs from mcll
+    """
+    mcll = 0.0
+    probs = probs / probs.sum(1)[:, np.newaxis]
+    for i, observation in enumerate(observations):
+        mcll = mcll + math.log(probs[i][observation - 1])
+    mcll = - mcll / len(observations)
+    return mcll

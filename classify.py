@@ -16,22 +16,17 @@ from sklearn.svm import SVC
 
 from common import *
 
+
 def split_dataframe(df):
-    kf = StratifiedKFold(df["OpenStatus"].values,5)
+    kf = StratifiedKFold(df["OpenStatus"].values, 5)
     train, test = kf.__iter__().next()
     return df.take(train), df.take(test)
 
-#def calculate_mcll(probs, observations):
-#    mcll = 0.0
-#    for i, observation in enumerate(observations):
-#        mcll = mcll + math.log(probs[i][observation - 1])
-#    mcll = - mcll / len(observations)
-#    return mcll
 
-
-#although it is recommended to put everything into main() 
+#although it is recommended to put everything into main()
 # I prefer dirty way. Lots of benefits when using interactive
 # IDE such as IPython
+
 #if __name__ == "__main__":
 
 print("Reading data...")
@@ -65,8 +60,9 @@ print("np.mean: %f" % (np.mean(predict == ff_val["OpenStatus"])))
 
 #it is not very different from Uniform Benchmark =))
 linear_decisions = clf.decision_function(test_tfidf_table)
-predictedProbs = (1/(1+np.exp(-linear_decisions)))**3.5
-print("MLCC: %f" %(mcll(predictedProbs, ff_val["OpenStatus"].values)))
+predicted_probs = (1 / (1 + np.exp(- linear_decisions))) ** 3.5
+print("MCLL: %f" % (mcll(predicted_probs, ff_val["OpenStatus"].values)))
+print("MCLL: %f" % (mcll_alternative(predicted_probs, ff_val["OpenStatus"])))
 
 t2 = time()
 print("done in %d seconds" % (t2 - t1))
