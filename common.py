@@ -31,6 +31,7 @@ input_features = [
     "Tag5",
     "PostClosedDate",
     "OpenStatus",
+    "TitlePlusBody"
 ]
 
 statuses = {
@@ -59,6 +60,11 @@ def extract_features(features, df):
                 ff = ff.join(df[feature].apply(status_to_number))
             else:
                 ff = ff.join(df[feature])
+        elif feature == "TitlePlusBody":
+            ff = ff.join(pandas.DataFrame.from_dict({
+                "TitlePlusBody": df["Title"] + df["BodyMarkdown"]}))
+        else:
+            pass
     return ff
 
 

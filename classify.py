@@ -42,7 +42,7 @@ print("Training...")
 t1 = time()
 
 vectorizer = CountVectorizer()
-train_counts = vectorizer.fit_transform(ff_train["BodyMarkdown"])
+train_counts = vectorizer.fit_transform(ff_train["TitlePlusBody"])
 tfidf_transformer = TfidfTransformer()
 
 # 98190x285052
@@ -52,7 +52,7 @@ clf = LinearSVC().fit(train_tfidf_table, ff_train["OpenStatus"])
 
 print("Testing...")
 
-test_counts = vectorizer.transform(ff_val["BodyMarkdown"])
+test_counts = vectorizer.transform(ff_val["TitlePlusBody"])
 test_tfidf_table = tfidf_transformer.transform(test_counts)
 
 predict = clf.predict(test_tfidf_table)
@@ -62,7 +62,7 @@ print("np.mean: %f" % (np.mean(predict == ff_val["OpenStatus"])))
 linear_decisions = clf.decision_function(test_tfidf_table)
 predicted_probs = (1 / (1 + np.exp(- linear_decisions))) ** 3.5
 print("MCLL: %f" % (mcll(predicted_probs, ff_val["OpenStatus"].values)))
-print("MCLL: %f" % (mcll_alternative(predicted_probs, ff_val["OpenStatus"])))
+#print("MCLL: %f" % (mcll_alternative(predicted_probs, ff_val["OpenStatus"])))
 
 t2 = time()
 print("done in %d seconds" % (t2 - t1))
