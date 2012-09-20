@@ -10,7 +10,7 @@ from sklearn.cross_validation import StratifiedKFold
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 
-from sklearn.svm import LinearSVC
+from sklearn.svm.sparse import LinearSVC
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
 
