@@ -14,8 +14,7 @@ from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
 
-
-from team import *
+from common import *
 
 def split_dataframe(df):
     kf = StratifiedKFold(df["OpenStatus"].values,5)
