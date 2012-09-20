@@ -43,7 +43,7 @@ t1 = time()
 
 vectorizer = CountVectorizer()
 train_counts = vectorizer.fit_transform(ff_train["TitlePlusBody"])
-tfidf_transformer = TfidfTransformer()
+tfidf_transformer = TfidfTransformer(use_idf=False)
 
 # 98190x285052
 train_tfidf_table = tfidf_transformer.fit_transform(train_counts)
