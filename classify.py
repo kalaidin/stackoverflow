@@ -17,18 +17,6 @@ from sklearn.svm import SVC
 from common import *
 
 
-def split_dataframe(df):
-    kf = StratifiedKFold(df["OpenStatus"].values, 5)
-    train, test = kf.__iter__().next()
-    return df.take(train), df.take(test)
-
-
-#although it is recommended to put everything into main()
-# I prefer dirty way. Lots of benefits when using interactive
-# IDE such as IPython
-
-#if __name__ == "__main__":
-
 print("Reading data...")
 
 test_df = get_dataframe(DATA_PATH + "./train-sample.csv")

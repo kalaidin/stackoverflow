@@ -90,3 +90,8 @@ def mcll_alternative(probs, observations):
         mcll = mcll + math.log(probs[i][observation - 1])
     mcll = - mcll / len(observations)
     return mcll
+    
+def split_dataframe(df):
+    kf = StratifiedKFold(df["OpenStatus"].values, 5)
+    train, test = kf.__iter__().next()
+    return df.take(train), df.take(test)    
