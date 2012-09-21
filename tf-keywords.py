@@ -4,7 +4,7 @@
 Created on Thu Sep 20 22:51:35 2012
 """
 
-from team import *
+from common import *
 import pandas
 
 from sklearn.feature_extraction.text import CountVectorizer
