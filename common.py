@@ -6,6 +6,8 @@ Some common functions and variables
 Created on Thu Sep 20 23:00:26 2012
 """
 
+from collections import Counter
+import csv
 import getpass
 import math
 
@@ -39,8 +41,8 @@ input_features = [
 statuses = {
     "open": 0,
     "not a real question": 1,
-    "not constructive": 2,
-    "off topic": 3,
+    "off topic": 2,
+    "not constructive": 3,
     "too localized": 4
 }
 
@@ -85,4 +87,26 @@ def mcll(predicted, actual):
 def split_dataframe(df):
     kf = StratifiedKFold(df["OpenStatus"].values, 5)
     train, test = kf.__iter__().next()
-    return df.take(train), df.take(test)    
+    return df.take(train), df.take(test)
+
+
+def get_reader(file_name):
+    reader = csv.reader(open(file_name))
+    header = reader.next()
+    return reader
+
+
+def get_priors(file_name):
+    return [0.9791913907850639,
+            0.00913477057600471,
+            0.005200965546050945,
+            0.004645859639795308,
+            0.0018270134530850952]
+    #closed_reasons = [r[14] for r in get_reader(file_name)]
+    #closed_reason_counts = Counter(closed_reasons)
+    #print closed_reason_counts
+    #total = float(len(closed_reasons)) 
+    #reasons = sorted(closed_reason_counts.keys(), key=lambda x: statuses[x])
+    #priors = [closed_reason_counts[reason]/total for reason in reasons]
+    #return priors
+
