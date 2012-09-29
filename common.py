@@ -64,7 +64,7 @@ def extract_features(features, df):
                 ff = ff.join(df[feature])
         elif feature == "TitlePlusBody":
             ff = ff.join(pandas.DataFrame.from_dict({
-                "TitlePlusBody": df["Title"] + df["BodyMarkdown"]}))
+                "TitlePlusBody": df["Title"] + ". "+ df["BodyMarkdown"]}))
         else:
             pass
     return ff
