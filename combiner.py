@@ -10,19 +10,22 @@ from common import *
 
 small_tables_path = DATA_PATH + "small_tables/"
 
-sparse_files = [
-"keyword_tf.sparse",
-"title_body_logTF.sparse"
-]
-
-tables = []
-for sp_file in sparse_files:
-    tables.append( cPickle.load( open(small_tables_path + sp_file) ) )
+def combine(train_or_test):
+    sparse_files = [
+    train_or_test+"_keyword_tf.sparse",
+    train_or_test+"_title_body_logTF.sparse"
+    ]
     
-overall_table = hstack(tables)
-
-cPickle.dump(overall_table, open(DATA_PATH + "overall_table.sparse", "wb"), protocol=-1)
-
+    tables = []
+    for sp_file in sparse_files:
+        tables.append( cPickle.load( open(small_tables_path + sp_file) ) )
+        
+    overall_table = hstack(tables)
+    
+    cPickle.dump(overall_table, open(DATA_PATH + "overall_%s.sparse" % train_or_test, "wb"), protocol=-1)   
+    
+combine("train")
+combine("test")
 
 data_raw = get_dataframe(DATA_PATH + "./train-sample.csv")
 labels_frame = extract_features(['OpenStatus'], data_raw)
