@@ -10,10 +10,13 @@ from collections import Counter
 import csv
 import getpass
 import math
+import re
 
 import pandas
 import numpy as np
 from sklearn.cross_validation import StratifiedKFold
+
+import common
 
 DATA_PATH = ''
 if getpass.getuser() == 'marat':
@@ -35,7 +38,7 @@ input_features = [
     "Tag5",
     "PostClosedDate",
     "OpenStatus",
-    "TitlePlusBody"
+    "TitlePlusBody",
 ]
 
 statuses = {
@@ -45,6 +48,10 @@ statuses = {
     "not constructive": 3,
     "too localized": 4
 }
+
+def camel_to_underscores(name):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
 def get_dataframe(filename):
@@ -56,19 +63,21 @@ def status_to_number(status):
     return statuses[status]
 
 
+def title_plus_body(df):
+    return pandas.DataFrame.from_dict({"TitlePlusBody": df["Title"] + ". " + df["BodyMarkdown"]})
+
+
 def extract_features(features, df):
     ff = pandas.DataFrame(index=df.index)
-    for feature in features:
-        if feature in df:
-            if feature == "OpenStatus":
-                ff = ff.join(df[feature].apply(status_to_number))
+    for name in features:
+        if name in df:
+            if name == "OpenStatus":
+                ff = ff.join(df[name].apply(status_to_number))
             else:
-                ff = ff.join(df[feature])
-        elif feature == "TitlePlusBody":
-            ff = ff.join(pandas.DataFrame.from_dict({
-                "TitlePlusBody": df["Title"] + ". " + df["BodyMarkdown"]}))
+                ff = ff.join(df[name])
         else:
-            pass
+            ff = ff.join(getattr(common, 
+                camel_to_underscores(name))(df))
     return ff
 
 
