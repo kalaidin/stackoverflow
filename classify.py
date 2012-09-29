@@ -5,8 +5,6 @@ Features
 """
 from time import time
 
-from sklearn.cross_validation import StratifiedKFold
-
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 

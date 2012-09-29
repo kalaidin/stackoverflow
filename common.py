@@ -7,9 +7,11 @@ Created on Thu Sep 20 23:00:26 2012
 """
 
 import getpass
-import pandas
 import math
+
+import pandas
 import numpy as np
+from sklearn.cross_validation import StratifiedKFold
 
 DATA_PATH = ''
 if getpass.getuser() == 'marat':
