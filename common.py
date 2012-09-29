@@ -66,7 +66,7 @@ def extract_features(features, df):
                 ff = ff.join(df[feature])
         elif feature == "TitlePlusBody":
             ff = ff.join(pandas.DataFrame.from_dict({
-                "TitlePlusBody": df["Title"] + ". "+ df["BodyMarkdown"]}))
+                "TitlePlusBody": df["Title"] + ". " + df["BodyMarkdown"]}))
         else:
             pass
     return ff
@@ -83,7 +83,7 @@ def mcll(predicted, actual):
     predicted = predicted / predicted.sum(1)[:, np.newaxis]  # normalize
     return - np.sum(np.log(predicted[np.arange(predicted.shape[0]), actual])) / predicted.shape[0]
 
-    
+
 def split_dataframe(df):
     kf = StratifiedKFold(df["OpenStatus"].values, 5)
     train, test = kf.__iter__().next()
@@ -100,9 +100,9 @@ def get_priors(file_name):
     closed_reasons = [r[14] for r in get_reader(file_name)]
     closed_reason_counts = Counter(closed_reasons)
     print closed_reason_counts
-    total = float(len(closed_reasons)) 
+    total = float(len(closed_reasons))
     reasons = sorted(closed_reason_counts.keys(), key=lambda x: statuses[x])
-    priors = [closed_reason_counts[reason]/total for reason in reasons]
+    priors = [closed_reason_counts[reason] / total for reason in reasons]
     return priors
 
 
@@ -125,6 +125,10 @@ def get_train_sample_priors():
 def update_probs(probs, old_priors, new_priors):
     old_priors = np.kron(np.ones((np.size(probs, 0), 1)), old_priors)
     new_priors = np.kron(np.ones((np.size(probs, 0), 1)), new_priors)
-    updated_probs = probs * new_priors * (1 - old_priors) / ( old_priors * (1 - probs - new_priors) + probs * new_priors)
+    updated_probs = probs * new_priors * (1 - old_priors) / (old_priors * (1 - probs - new_priors) + probs * new_priors)
     return updated_probs
 
+
+def write_submission(file_name, probs):
+    writer = csv.writer(open(file_name, "w"), lineterminator="\n")
+    writer.writerows(probs)
