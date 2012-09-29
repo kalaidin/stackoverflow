@@ -97,16 +97,34 @@ def get_reader(file_name):
 
 
 def get_priors(file_name):
+    closed_reasons = [r[14] for r in get_reader(file_name)]
+    closed_reason_counts = Counter(closed_reasons)
+    print closed_reason_counts
+    total = float(len(closed_reasons)) 
+    reasons = sorted(closed_reason_counts.keys(), key=lambda x: statuses[x])
+    priors = [closed_reason_counts[reason]/total for reason in reasons]
+    return priors
+
+
+def get_full_train_priors():
     return [0.9791913907850639,
             0.00913477057600471,
             0.005200965546050945,
             0.004645859639795308,
             0.0018270134530850952]
-    #closed_reasons = [r[14] for r in get_reader(file_name)]
-    #closed_reason_counts = Counter(closed_reasons)
-    #print closed_reason_counts
-    #total = float(len(closed_reasons)) 
-    #reasons = sorted(closed_reason_counts.keys(), key=lambda x: statuses[x])
-    #priors = [closed_reason_counts[reason]/total for reason in reasons]
-    #return priors
+
+
+def get_train_sample_priors():
+    return [0.5,
+            0.21949498117942284,
+            0.12497148397399338,
+            0.11163311280939889,
+            0.043900422037184895]
+
+
+def update_probs(probs, old_priors, new_priors):
+    old_priors = np.kron(np.ones((np.size(probs, 0), 1)), old_priors)
+    new_priors = np.kron(np.ones((np.size(probs, 0), 1)), new_priors)
+    updated_probs = probs * new_priors * (1 - old_priors) / ( old_priors * (1 - probs - new_priors) + probs * new_priors)
+    return updated_probs
 
