@@ -11,6 +11,7 @@ import csv
 import getpass
 import math
 import re
+import dateutil
 
 import pandas
 import numpy as np
@@ -21,6 +22,10 @@ import common
 DATA_PATH = ''
 if getpass.getuser() == 'marat':
     DATA_PATH = '/home/marat/kaggle.com/stackoverflow-data/'
+
+df_converters = {"PostCreationDate": dateutil.parser.parse,
+                 "OwnerCreationDate": dateutil.parser.parse}
+
 
 input_features = [
     "PostId",
@@ -39,6 +44,10 @@ input_features = [
     "PostClosedDate",
     "OpenStatus",
     "TitlePlusBody",
+    "NumberOfTags",
+    "BodyLength",
+    "NumberOfWordsInTitle",
+    "Age"
 ]
 
 statuses = {
@@ -55,7 +64,7 @@ def camel_to_underscores(name):
 
 
 def get_dataframe(filename):
-    dataframe = pandas.io.parsers.read_csv(filename)
+    dataframe = pandas.io.parsers.read_csv(filename, converters=df_converters)
     return dataframe
 
 
@@ -67,6 +76,26 @@ def title_plus_body(df):
     return pandas.DataFrame.from_dict({"TitlePlusBody": df["Title"] + ". " + df["BodyMarkdown"]})
 
 
+def number_of_tags(df):
+    return pandas.DataFrame.from_dict({"NumberOfTags": [sum(map(lambda x:
+        pandas.isnull(x), row)) for row in (df[["Tag%d" % d
+        for d in range(1,6)]].values)] } ) ["NumberOfTags"]
+
+
+def number_of_words_in_title(df):
+    return df["Title"].apply(lambda x: len(x.split()))
+
+
+def body_length(df):
+    return df["BodyLength"].apply(len)
+
+
+def age(df):
+    return pandas.DataFrame.from_dict({"Age": (df["PostCreationDate"]
+            - df["OwnerCreationDate"]).apply(lambda x: x.total_seconds())})
+
+
+
 def extract_features(features, df):
     ff = pandas.DataFrame(index=df.index)
     for name in features:
@@ -74,7 +103,7 @@ def extract_features(features, df):
             if name == "OpenStatus":
                 ff = ff.join(df[name].apply(status_to_number))
             else:
-                ff = ff.join(df[name])
+                 ff = ff.join(df[name])
         else:
             ff = ff.join(getattr(common, 
                 camel_to_underscores(name))(df))
