@@ -42,7 +42,7 @@ input_features = [
 #    "Tag4",
 #    "Tag5",
 #    "PostClosedDate",
-    "OpenStatus",
+#    "OpenStatus",
 #    "TitlePlusBody",
     "NumberOfTags",
     "BodyLength",
@@ -114,19 +114,22 @@ def proportion_of_code_to_all_words(body_text):
 
 
 def number_of_words_in_bodymarkdown(df):
-    return df["BodyMarkdown"].apply(number_of_words, axis=1)
- 
+    return pandas.DataFrame.from_dict({"NumberOfWordsInBodymarkdown":
+        df["BodyMarkdown"].apply(number_of_words)}) 
 
 def is_code_supplied_in_bodymarkdown(df):
-    return df["BodyMarkdown"].apply(is_code_supplied, axis=1)  
+    return pandas.DataFrame.from_dict({"IsCodeSuppliedInBodymarkdown":
+        df["BodyMarkdown"].apply(is_code_supplied)})  
 
     
 def proportion_of_code_to_bodymarkdown_in_bodymarkdown(df):    
-    return df["BodyMarkdown"].apply(proportion_of_code_to_all_words, axis=1)  
+    return pandas.DataFrame.from_dict({"ProportionOfCodeToBodymarkdownInBodymarkdown":
+        df["BodyMarkdown"].apply(proportion_of_code_to_all_words)})  
 
   
 def number_of_code_blocks_in_bodymarkdown(df):
-    return df["BodyMarkdown"].apply(number_of_code_blocks, axis=1)      
+    return pandas.DataFrame.from_dict({"NumberOfCodeBlocksInBodymarkdown":
+        df["BodyMarkdown"].apply(number_of_code_blocks)})
 
 
 def camel_to_underscores(name):
@@ -158,7 +161,7 @@ def number_of_words_in_title(df):
 
 
 def body_length(df):
-    return df["BodyLength"].apply(len)
+    return df["BodyMarkdown"].apply(len)
 
 
 def age(df):
@@ -241,3 +244,10 @@ def update_probs(probs, old_priors, new_priors):
 def write_submission(file_name, probs):
     writer = csv.writer(open(file_name, "w"), lineterminator="\n")
     writer.writerows(probs)
+
+def cap_predictions(probs, epsilon):
+    probs[probs>1-epsilon] = 1-epsilon
+    probs[probs<epsilon] = epsilon
+    row_sums = probs.sum(axis=1)
+    probs = probs / row_sums[:, np.newaxis]
+    return probs
