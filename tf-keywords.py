@@ -6,7 +6,7 @@ Created on Thu Sep 20 22:51:35 2012
 
 from common import *
 import pandas
-import cPickle
+
 
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -23,4 +23,5 @@ keywords_rows = data.apply( convert_to_string , axis=1 )
 vectorizer = CountVectorizer(stop_words=None,analyzer = 'word',token_pattern='[^\s]+')
 counts = vectorizer.fit_transform(keywords_rows.values)
 
+import cPickle
 cPickle.dump(counts, open(DATA_PATH+"small_tables/keyword_tf.sparse","wb"), protocol=-1)
