@@ -4,12 +4,23 @@
 Created on Sat Sep 29 21:03:45 2012
 """
 
-from common import *
-
+from sklearn.svm import LinearSVC
 import cPickle
 
-overall = cPickle.load(open(DATA_PATH+"overall_table.sparse"))
+from common import *
 
-kf = StratifiedKFold(df["OpenStatus"].values, 5)
+overall = cPickle.load(open(DATA_PATH+"overall_table.sparse")).tocsr()
+all_labels = cPickle.load(open(DATA_PATH+"labels.numpy"))
+
+kf = StratifiedKFold(labels, 5)
 train, test = kf.__iter__().next()
 trainX, cvX = overall[train,:], overall[test ,:]
+trainY, cvY = all_labels[train], all_labels[test]
+
+svc = LinearSVC(C=0.001)
+svc.fit(trainX, trainY)
+
+linear_decisions = svc.decision_function(cvX)
+predicted_probs = (1 / (1 + np.exp(- linear_decisions))) ** 4
+print("MCLL: %f" %mcll(predicted_probs, cvY) )
+
