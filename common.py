@@ -55,10 +55,10 @@ input_features = [
 ]
 
 statuses = {
-    "open": 0,
-    "not a real question": 1,
+    "open": 3,
+    "not a real question": 0,
     "off topic": 2,
-    "not constructive": 3,
+    "not constructive": 1,
     "too localized": 4
 }
 
