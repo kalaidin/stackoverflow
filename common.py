@@ -28,26 +28,30 @@ df_converters = {"PostCreationDate": dateutil.parser.parse,
 
 
 input_features = [
-    "PostId",
-    "PostCreationDate",
-    "OwnerUserId",
-    "OwnerCreationDate",
+#    "PostId",
+#    "PostCreationDate",
+#    "OwnerUserId",
+#    "OwnerCreationDate",
     "ReputationAtPostCreation",
     "OwnerUndeletedAnswerCountAtPostTime",
-    "Title",
-    "BodyMarkdown",
-    "Tag1",
-    "Tag2",
-    "Tag3",
-    "Tag4",
-    "Tag5",
-    "PostClosedDate",
+#    "Title",
+#    "BodyMarkdown",
+#    "Tag1",
+#    "Tag2",
+#    "Tag3",
+#    "Tag4",
+#    "Tag5",
+#    "PostClosedDate",
     "OpenStatus",
-    "TitlePlusBody",
+#    "TitlePlusBody",
     "NumberOfTags",
     "BodyLength",
     "NumberOfWordsInTitle",
-    "Age"
+    "Age",
+    "NumberOfWordsInBodymarkdown",
+    "NumberOfCodeBlocksInBodymarkdown",
+    "IsCodeSuppliedInBodymarkdown",
+    "ProportionOfCodeToBodymarkdownInBodymarkdown"
 ]
 
 statuses = {
@@ -58,6 +62,7 @@ statuses = {
     "too localized": 4
 }
 
+
 def number_of_words(body_text):
     words = 0
     for line in body_text.split('\n'):
@@ -65,12 +70,14 @@ def number_of_words(body_text):
             continue
         words += len(line.split(' '))
     return words      
-    
+
+
 def is_code_supplied(body_text):
     for line in body_text.split('\n'):
         if line.startswith('    '):
             return 1
     return 0    
+
 
 def number_of_lines_of_code(body_text):
     lines_of_code = 0
@@ -78,6 +85,7 @@ def number_of_lines_of_code(body_text):
         if line.startswith('    '):
             lines_of_code += 1
     return lines_of_code
+
     
 def number_of_code_blocks(body_text):
     in_code_block = False
@@ -97,23 +105,29 @@ def number_of_code_blocks(body_text):
             else:
                 continue
     return code_blocks        
+
         
 def proportion_of_code_to_all_words(body_text):
     lines_of_code = number_of_lines_of_code(body_text)
     words = number_of_words(body_text)
     return lines_of_code/(lines_of_code + words/7.0)
 
+
 def number_of_words_in_bodymarkdown(df):
     return df["BodyMarkdown"].apply(number_of_words, axis=1)
-    
+ 
+
 def is_code_supplied_in_bodymarkdown(df):
     return df["BodyMarkdown"].apply(is_code_supplied, axis=1)  
+
     
 def proportion_of_code_to_bodymarkdown_in_bodymarkdown(df):    
     return df["BodyMarkdown"].apply(proportion_of_code_to_all_words, axis=1)  
-    
+
+  
 def number_of_code_blocks_in_bodymarkdown(df):
     return df["BodyMarkdown"].apply(number_of_code_blocks, axis=1)      
+
 
 def camel_to_underscores(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
