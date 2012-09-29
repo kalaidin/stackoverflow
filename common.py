@@ -81,17 +81,6 @@ def mcll(predicted, actual):
     predicted = predicted / predicted.sum(1)[:, np.newaxis]  # normalize
     return - np.sum(np.log(predicted[np.arange(predicted.shape[0]), actual])) / predicted.shape[0]
 
-
-def mcll_alternative(probs, observations):
-    """
-    TODO: find out why its output differs from mcll
-    """
-    mcll = 0.0
-    probs = probs / probs.sum(1)[:, np.newaxis]
-    for i, observation in enumerate(observations):
-        mcll = mcll + math.log(probs[i][observation - 1])
-    mcll = - mcll / len(observations)
-    return mcll
     
 def split_dataframe(df):
     kf = StratifiedKFold(df["OpenStatus"].values, 5)
