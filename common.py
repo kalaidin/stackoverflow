@@ -49,6 +49,63 @@ statuses = {
     "too localized": 4
 }
 
+def number_of_words(body_text):
+    words = 0
+    for line in body_text.split('\n'):
+        if line.startswith('    '):
+            continue
+        words += len(line.split(' '))
+    return words      
+    
+def is_code_supplied(body_text):
+    for line in body_text.split('\n'):
+        if line.startswith('    '):
+            return 1
+    return 0    
+
+def number_of_lines_of_code(body_text):
+    lines_of_code = 0
+    for line in body_text.split('\n'):
+        if line.startswith('    '):
+            lines_of_code += 1
+    return lines_of_code
+    
+def number_of_code_blocks(body_text):
+    in_code_block = False
+    code_blocks = 0
+    for line in body_text.split('\n'):
+        if line.strip() == '':
+            continue
+        if in_code_block:
+            if line.startswith('    '):
+                continue
+            else:
+                in_code_block = False
+        else:
+            if line.startswith('    '):
+                in_code_block = True
+                code_blocks += 1
+            else:
+                continue
+    return code_blocks        
+        
+def proportion_of_code_to_all_words(body_text):
+    lines_of_code = number_of_lines_of_code(body_text)
+    words = number_of_words(body_text)
+    return lines_of_code/(lines_of_code + words/7.0)
+
+def number_of_words_in_bodymarkdown(df):
+    return df["BodyMarkdown"].apply(number_of_words, axis=1)
+    
+def is_code_supplied_in_bodymarkdown(df):
+    return df["BodyMarkdown"].apply(is_code_supplied, axis=1)  
+    
+def proportion_of_code_to_bodymarkdown_in_bodymarkdown(df):    
+    return df["BodyMarkdown"].apply(proportion_of_code_to_all_words, axis=1)  
+    
+def number_of_code_blocks_in_bodymarkdown(df):
+    return df["BodyMarkdown"].apply(number_of_code_blocks, axis=1)      
+
 def camel_to_underscores(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
