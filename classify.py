@@ -44,7 +44,6 @@ test_tfidf_table = tfidf_transformer.transform(test_counts)
 predict = clf.predict(test_tfidf_table)
 print("np.mean: %f" % (np.mean(predict == ff_val["OpenStatus"])))
 
-#it is not very different from Uniform Benchmark =))
 linear_decisions = clf.decision_function(test_tfidf_table)
 predicted_probs = (1 / (1 + np.exp(- linear_decisions))) ** 3.5
 print("MCLL: %f" % (mcll(predicted_probs, ff_val["OpenStatus"].values)))
