@@ -13,7 +13,7 @@ import cPickle
 print("Reading data...")
 
 train_df = get_dataframe(DATA_PATH + "./train-sample.csv")
-train_ff = extract_features(input_features, train_df)
+train_ff = extract_features(["TitlePlusBody"], train_df)
 
 vectorizer = CountVectorizer()
 tfidf_transformer = TfidfTransformer(use_idf=False)
@@ -24,7 +24,7 @@ train_ifidf = tfidf_transformer.fit_transform(train_counts)
 cPickle.dump(train_ifidf, open(DATA_PATH+"small_tables/train_title_body_logTF.sparse","wb"), protocol=-1)
 
 test_df = get_dataframe(DATA_PATH + "./public_leaderboard.csv")
-test_ff = extract_features(input_features, test_df)
+test_ff = extract_features(["TitlePlusBody"], test_df)
 
 test_count = vectorizer.transform(test_ff["TitlePlusBody"])
 test_ifidf = tfidf_transformer.transform(test_count)

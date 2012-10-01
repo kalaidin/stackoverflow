@@ -22,36 +22,30 @@ import common
 DATA_PATH = ''
 if getpass.getuser() == 'marat':
     DATA_PATH = '/home/marat/kaggle.com/stackoverflow-data/'
+elif getpass.getuser() == 'tsundokum':    
+    DATA_PATH = '/home/tsundokum/kaggle.com/stackoverflow-data/'
 
 df_converters = {"PostCreationDate": dateutil.parser.parse,
                  "OwnerCreationDate": dateutil.parser.parse}
 
 
 input_features = [
-#    "PostId",
-#    "PostCreationDate",
-#    "OwnerUserId",
-#    "OwnerCreationDate",
+    "PostId",
+    "PostCreationDate",
+    "OwnerUserId",
+    "OwnerCreationDate",
     "ReputationAtPostCreation",
     "OwnerUndeletedAnswerCountAtPostTime",
-#    "Title",
-#    "BodyMarkdown",
-#    "Tag1",
-#    "Tag2",
-#    "Tag3",
-#    "Tag4",
-#    "Tag5",
-#    "PostClosedDate",
-#    "OpenStatus",
-#    "TitlePlusBody",
-    "NumberOfTags",
-    "BodyLength",
-    "NumberOfWordsInTitle",
-    "Age",
-    "NumberOfWordsInBodymarkdown",
-    "NumberOfCodeBlocksInBodymarkdown",
-    "IsCodeSuppliedInBodymarkdown",
-    "ProportionOfCodeToBodymarkdownInBodymarkdown"
+    "Title",
+    "BodyMarkdown",
+    "Tag1",
+    "Tag2",
+    "Tag3",
+    "Tag4",
+    "Tag5",
+    "PostClosedDate",
+    "OpenStatus",
+    "TitlePlusBody",
 ]
 
 statuses = {
@@ -143,6 +137,7 @@ def get_dataframe(filename):
 
 
 def status_to_number(status):
+    print "%s -> %d" % (status, statuses[status])
     return statuses[status]
 
 
@@ -219,19 +214,16 @@ def get_priors(file_name):
 
 
 def get_full_train_priors():
-    return [0.9791913907850639,
+    return [
             0.00913477057600471,
-            0.005200965546050945,
             0.004645859639795308,
-            0.0018270134530850952]
-
+            0.005200965546050945,
+            0.9791913907850639,            
+            0.0018270134530850952
+            ]
 
 def get_train_sample_priors():
-    return [0.5,
-            0.21949498117942284,
-            0.12497148397399338,
-            0.11163311280939889,
-            0.043900422037184895]
+    return  [ 0.60974749, 0.05581656, 0.06248574, 0.25 , 0.02195021]
 
 
 def update_probs(probs, old_priors, new_priors):
@@ -245,7 +237,7 @@ def write_submission(file_name, probs):
     writer = csv.writer(open(file_name, "w"), lineterminator="\n")
     writer.writerows(probs)
 
-def cap_predictions(probs, epsilon):
+def cap_predictions(probs, epsilon=0.001):
     probs[probs>1-epsilon] = 1-epsilon
     probs[probs<epsilon] = epsilon
     row_sums = probs.sum(axis=1)

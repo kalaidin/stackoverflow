@@ -36,7 +36,7 @@ linear_decisions = svc.decision_function(testX)
 predicted_probs = (1 / (1 + np.exp(- linear_decisions))) ** 4.1
 
 updated_probs = update_probs(predicted_probs, get_train_sample_priors(), get_full_train_priors())
-write_submission(DATA_PATH + "submission_1.csv", updated_probs)
+write_submission(DATA_PATH + "submission_4.csv", updated_probs)
 
 
 #small_train_X = svc.transform(trainX)

@@ -12,6 +12,19 @@ from time import time
 
 from common import *
 
+input_features = [
+    "ReputationAtPostCreation",
+    "OwnerUndeletedAnswerCountAtPostTime",
+    "NumberOfTags",
+    "BodyLength",
+    "NumberOfWordsInTitle",
+    "Age",
+    "NumberOfWordsInBodymarkdown",
+    "NumberOfCodeBlocksInBodymarkdown",
+    "IsCodeSuppliedInBodymarkdown",
+    "ProportionOfCodeToBodymarkdownInBodymarkdown"
+]
+
 #train_df = get_dataframe(DATA_PATH + "./train-sample.csv")
 #train_ff = extract_features(input_features, train_df)
 #all_labels = cPickle.load(open(DATA_PATH+"labels.numpy"))
@@ -23,17 +36,19 @@ from common import *
 #
 #t = time()
 #print("Training...")
-#svc = RandomForestClassifier(n_estimators=400, verbose=2, compute_importances=True, n_jobs=-1)
+#svc = RandomForestClassifier(n_estimators=4, verbose=2, compute_importances=False, n_jobs=-1)
 #svc.fit(trainX, trainY)
 #print( "%.2f seconds" %(time()-t) )
-#print("MCLL on cv: %f" %mcll(svc.predict_proba(cvX)+0.01, cvY) )
+#
+#test_probs = svc.predict_proba(cvX)
+#print("MCLL on cv: %f" %mcll( cap_predictions(test_probs, 0.001) , cvY) )
 
 
 data_test= get_dataframe(DATA_PATH + "./public_leaderboard.csv")
 test_ff = extract_features(input_features, data_test)
 trainY = cPickle.load(open(DATA_PATH+"labels.numpy"))
 
-svc = RandomForestClassifier(n_estimators=400, verbose=2, compute_importances=True, n_jobs=-1)
+svc = RandomForestClassifier(n_estimators=400, verbose=2, compute_importances=False, n_jobs=-1)
 svc.fit(test_ff, trainY)
 
 data_test = get_dataframe(DATA_PATH + "./public_leaderboard.csv")
@@ -41,5 +56,6 @@ test = extract_features(input_features, data_test)
 
 test_probs = svc.predict_proba(test)
 updated_probs = update_probs( cap_predictions(test_probs, 0.001), get_train_sample_priors(), get_full_train_priors())
-write_submission(DATA_PATH + "submission_3.csv", updated_probs)
+#write_submission(DATA_PATH + "submission_5.csv", updated_probs)
+write_submission("submission_5.csv", updated_probs)
 
