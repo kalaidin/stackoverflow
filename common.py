@@ -223,7 +223,13 @@ def get_full_train_priors():
             ]
 
 def get_train_sample_priors():
-    return  [ 0.60974749, 0.05581656, 0.06248574, 0.25 , 0.02195021]
+    return [
+            0.21949498117942284,
+            0.11163311280939889,
+            0.12497148397399338,
+            0.5,
+            0.043900422037184895
+            ]
 
 
 def update_probs(probs, old_priors, new_priors):
@@ -243,3 +249,7 @@ def cap_predictions(probs, epsilon=0.001):
     row_sums = probs.sum(axis=1)
     probs = probs / row_sums[:, np.newaxis]
     return probs
+
+if __name__ == "__main__":
+    print(get_priors("train-sample.csv"))
+    print(get_priors("train.csv"))
