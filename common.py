@@ -159,6 +159,11 @@ def body_length(df):
     return df["BodyMarkdown"].apply(len)
 
 
+def title_length(df):
+    return pandas.DataFrame.from_dict({"TitleLength":
+        df["Title"].apply(len)})
+
+
 def age(df):
     return pandas.DataFrame.from_dict({"Age": (df["PostCreationDate"]
             - df["OwnerCreationDate"]).apply(lambda x: x.total_seconds())})
