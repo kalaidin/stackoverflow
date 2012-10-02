@@ -3,7 +3,6 @@
 """
 Created on Sun Sep 30 00:43:25 2012
 """
-
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
@@ -22,7 +21,7 @@ input_features = [
     "NumberOfWordsInBodymarkdown",
     "NumberOfCodeBlocksInBodymarkdown",
     "IsCodeSuppliedInBodymarkdown",
-    "ProportionOfCodeToBodymarkdownInBodymarkdown"
+    "ProportionOfCodeToBodymarkdownI"
 ]
 
 #train_df = get_dataframe(DATA_PATH + "./train-sample.csv")
