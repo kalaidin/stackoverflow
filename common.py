@@ -135,7 +135,6 @@ def get_dataframe(filename):
 
 
 def status_to_number(status):
-    print "%s -> %d" % (status, statuses[status])
     return statuses[status]
 
 
