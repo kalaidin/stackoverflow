@@ -46,22 +46,23 @@ features = [
 # Create Submition
 #===========================================================================
 
+print("Reading training data...")
 train_df = get_dataframe(DATA_PATH + "./train-sample.csv")
-
 train_x = extract_features(features, train_df)
 
-
-print("Training...")
+print("Training classifier...")
 classifier = RandomForestClassifier(n_estimators=400, compute_importances=False, n_jobs=-1)
 classifier.fit(train_x, train_df["OpenStatus"])
 
-print("Predicting...")
+print("Reading public leaderboard data...")
 test_df = get_dataframe(DATA_PATH + "./public_leaderboard.csv")
 test_x = extract_features(features, test_df)
+
+print("Predicting...")
 test_probs = classifier.predict_proba(test_x)
 
 updated_probs = update_probs(cap_predictions(test_probs, 0.001), get_train_sample_priors(), get_full_train_priors())
 
 write_submission("submission_9.csv", updated_probs)
 
-print("Done")
+print("Done!")
