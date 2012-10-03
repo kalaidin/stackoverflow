@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Sep 30 00:43:25 2012
-"""
+
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import GradientBoostingClassifier
 import cPickle
 from time import time
 
 from common import *
 
-input_features = [
+features = [
     "ReputationAtPostCreation",
     "OwnerUndeletedAnswerCountAtPostTime",
     "NumberOfTags",
@@ -21,7 +18,7 @@ input_features = [
     "NumberOfWordsInBodymarkdown",
     "NumberOfCodeBlocksInBodymarkdown",
     "IsCodeSuppliedInBodymarkdown",
-    "ProportionOfCodeToBodymarkdownI"
+    "ProportionOfCodeToBodymarkdown"
 ]
 
 #train_df = get_dataframe(DATA_PATH + "./train-sample.csv")
@@ -43,18 +40,23 @@ input_features = [
 #print("MCLL on cv: %f" %mcll( cap_predictions(test_probs, 0.001) , cvY) )
 
 
-data_test= get_dataframe(DATA_PATH + "./public_leaderboard.csv")
-test_ff = extract_features(input_features, data_test)
-trainY = cPickle.load(open(DATA_PATH+"labels.numpy"))
+# Creating submission...
 
-svc = RandomForestClassifier(n_estimators=400, verbose=2, compute_importances=False, n_jobs=-1)
-svc.fit(test_ff, trainY)
+train_df = get_dataframe(DATA_PATH + "./train-sample.csv")
 
-data_test = get_dataframe(DATA_PATH + "./public_leaderboard.csv")
-test = extract_features(input_features, data_test)
+train_x = extract_features(features, train_df)
 
-test_probs = svc.predict_proba(test)
-updated_probs = update_probs( cap_predictions(test_probs, 0.001), get_train_sample_priors(), get_full_train_priors())
-#write_submission(DATA_PATH + "submission_5.csv", updated_probs)
-write_submission("submission_5.csv", updated_probs)
+#train_y = cPickle.load(open(DATA_PATH + "labels.numpy"))
 
+print("Training...")
+svc = RandomForestClassifier(n_estimators=400, compute_importances=False, n_jobs=-1)
+svc.fit(train_x, train_df["OpenStatus"])
+
+print("Predicting...")
+test_df = get_dataframe(DATA_PATH + "./public_leaderboard.csv")
+test_x = extract_features(features, test_df)
+test_probs = svc.predict_proba(test_x)
+
+updated_probs = update_probs(cap_predictions(test_probs, 0.001), get_train_sample_priors(), get_full_train_priors())
+
+write_submission("submission_8.csv", updated_probs)
