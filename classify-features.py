@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
-import cPickle
-from time import time
 
 from common import *
 
@@ -13,13 +10,18 @@ features = [
     "OwnerUndeletedAnswerCountAtPostTime",
     "NumberOfTags",
     "BodyLength",
-    "NumberOfWordsInTitle",
+#    "NumberOfWordsInTitle",
     "Age",
-    "NumberOfWordsInBodymarkdown",
+#    "NumberOfWordsInBodymarkdown",
     "NumberOfCodeBlocksInBodymarkdown",
-    "IsCodeSuppliedInBodymarkdown",
-    "ProportionOfCodeToBodymarkdown"
+#    "IsCodeSuppliedInBodymarkdown",
+    "ProportionOfCodeToBodymarkdown",
+    "TitleLength"    
 ]
+
+#===========================================================================
+#Cross Validation
+#===========================================================================
 
 #train_df = get_dataframe(DATA_PATH + "./train-sample.csv")
 #train_ff = extract_features(input_features, train_df)
@@ -40,23 +42,26 @@ features = [
 #print("MCLL on cv: %f" %mcll( cap_predictions(test_probs, 0.001) , cvY) )
 
 
-# Creating submission...
+#===========================================================================
+# Create Submition
+#===========================================================================
 
 train_df = get_dataframe(DATA_PATH + "./train-sample.csv")
 
 train_x = extract_features(features, train_df)
 
-#train_y = cPickle.load(open(DATA_PATH + "labels.numpy"))
 
 print("Training...")
-svc = RandomForestClassifier(n_estimators=400, compute_importances=False, n_jobs=-1)
-svc.fit(train_x, train_df["OpenStatus"])
+classifier = RandomForestClassifier(n_estimators=400, compute_importances=False, n_jobs=-1)
+classifier.fit(train_x, train_df["OpenStatus"])
 
 print("Predicting...")
 test_df = get_dataframe(DATA_PATH + "./public_leaderboard.csv")
 test_x = extract_features(features, test_df)
-test_probs = svc.predict_proba(test_x)
+test_probs = classifier.predict_proba(test_x)
 
 updated_probs = update_probs(cap_predictions(test_probs, 0.001), get_train_sample_priors(), get_full_train_priors())
 
-write_submission("submission_8.csv", updated_probs)
+write_submission("submission_9.csv", updated_probs)
+
+print("Done")
