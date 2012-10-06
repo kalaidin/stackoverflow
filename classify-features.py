@@ -28,12 +28,11 @@ from time import time
 
 t = time()
 print("Reading training data...")
-train_df = get_dataframe(DATA_PATH + "train-sample.csv")
-train_ff = extract_features(features, train_df)
+train_parser = get_dataframe(DATA_PATH + "train-sample.csv")
+train_ff = extract_features(features, train_parser)
 print("%.3f sec" % (time()-t))
 all_labels = cPickle.load(open(DATA_PATH+"labels.numpy"))
 
-0/0
 
 print("Training classifier...")
 kf = StratifiedKFold(all_labels, 5)

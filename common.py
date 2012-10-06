@@ -129,11 +129,6 @@ def camel_to_underscores(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
-def get_dataframe(filename):
-    dataframe = pd.io.parsers.read_csv(filename, converters=df_converters)
-    return dataframe
-
-
 def status_to_number(status):
     return statuses[status]
 
@@ -167,17 +162,31 @@ def age(df):
             - df["OwnerCreationDate"]).apply(lambda x: x.total_seconds())})
 
 
-def extract_features(features, df):
-    ff = pd.DataFrame(index=df.index)
-    for name in features:
-        if name in df:
-            if name == "OpenStatus":
-                ff = ff.join(df[name].apply(status_to_number))
+
+def get_parser(filename):
+    parser = pd.io.parsers.read_csv(
+        filename,
+        iterator=True,
+        chunksize=100000,
+        converters=df_converters)
+    return parser
+
+
+def extract_features(features, parser):
+    all_ff = pd.DataFrame()
+    for df in enumerate(parser):
+        ff = pd.DataFrame(index=df.index)      
+        for name in features:
+            if name in df:
+                if name == "OpenStatus":
+                    ff = ff.join(df[name].apply(status_to_number))
+                else:
+                    ff = ff.join(df[name])
             else:
-                ff = ff.join(df[name])
-        else:
-            ff = ff.join(getattr(common, camel_to_underscores(name))(df))
-    return ff
+                ff = ff.join(getattr(common, camel_to_underscores(name))(df))
+        all_ff = all_ff.append(ff)
+    return all_ff
+
 
 
 def mcll(predicted, actual):
@@ -213,6 +222,10 @@ def get_priors(file_name):
     reasons = sorted(closed_reason_counts.keys(), key=lambda x: statuses[x])
     priors = [closed_reason_counts[reason] / total for reason in reasons]
     return priors
+
+
+def get_number_of_questions(file_name):
+    return sum(1 for r in get_reader(file_name))
 
 
 def get_full_train_priors():
@@ -257,3 +270,9 @@ def cap_predictions(probs, epsilon=0.001):
     row_sums = probs.sum(axis=1)
     probs = probs / row_sums[:, np.newaxis]
     return probs
+
+
+if __name__ == "__main__":
+    parser = get_parser("train-sample.csv")
+    ff = extract_features(["PostId"], parser)
+    print ff
