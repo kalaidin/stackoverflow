@@ -34,9 +34,11 @@ trainX, cvX = overall[train,:], overall[test ,:]
 trainY, cvY = all_labels[train], all_labels[test]
 
 print("Training a classifier...")
-#svc = LinearSVC(C=0.05, penalty='l1', dual=False )
-svc = LinearSVC(C=SVC_C)
+svc = LinearSVC(C=0.12, penalty='l1', dual=False )
+#svc = LinearSVC(C=SVC_C)
 svc.fit(trainX, trainY)
+
+print svc.transform(trainX).shape
 
 linear_decisions = svc.decision_function(cvX)
 predicted_probs = (1 / (1 + np.exp(- linear_decisions))) ** 4.2

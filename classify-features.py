@@ -28,10 +28,11 @@ from time import time
 
 t = time()
 print("Reading training data...")
-train_parser = get_dataframe(DATA_PATH + "train-sample.csv")
+train_parser = get_dataframe(DATA_PATH + "train.csv")
 train_ff = extract_features(features, train_parser)
+all_labels = extract_features(["OpenStatus"], train_parser)
 print("%.3f sec" % (time()-t))
-all_labels = cPickle.load(open(DATA_PATH+"labels.numpy"))
+
 
 
 print("Training classifier...")
@@ -42,7 +43,7 @@ trainY, cvY = all_labels[train], all_labels[test]
 
 t = time()
 print("Training...")
-svc = RandomForestClassifier(n_estimators=4, verbose=2, compute_importances=False, n_jobs=-1)
+svc = RandomForestClassifier(n_estimators=4, verbose=2, max_depth=12, compute_importances=False, n_jobs=-1)
 svc.fit(trainX, trainY)
 print( "%.2f seconds" %(time()-t) )
 

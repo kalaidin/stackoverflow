@@ -45,6 +45,20 @@ input_features = [
     "TitlePlusBody",
 ]
 
+features = [
+    "ReputationAtPostCreation",
+    "OwnerUndeletedAnswerCountAtPostTime",
+    "NumberOfTags",
+    "BodyLength",
+    "NumberOfWordsInTitle",
+    "Age",
+    "NumberOfWordsInBodymarkdown",
+    "NumberOfCodeBlocksInBodymarkdown",
+    "IsCodeSuppliedInBodymarkdown",
+    "ProportionOfCodeToBodymarkdown",
+    "TitleLength"    
+]
+
 statuses = {
     "open": 3,
     "not a real question": 0,
@@ -55,7 +69,10 @@ statuses = {
 
 
 def number_of_words(body_text):
-    words = 0
+    if body_text is not str:
+        return 0
+        
+    words = 0        
     for line in body_text.split('\n'):
         if line.startswith('    '):
             continue
@@ -64,6 +81,9 @@ def number_of_words(body_text):
 
 
 def is_code_supplied(body_text):
+    if body_text is not str:
+        return 0
+
     for line in body_text.split('\n'):
         if line.startswith('    '):
             return 1
@@ -71,6 +91,9 @@ def is_code_supplied(body_text):
 
 
 def number_of_lines_of_code(body_text):
+    if body_text is not str:
+        return 0
+
     lines_of_code = 0
     for line in body_text.split('\n'):
         if line.startswith('    '):
@@ -79,6 +102,9 @@ def number_of_lines_of_code(body_text):
 
 
 def number_of_code_blocks(body_text):
+    if body_text is not str:
+        return 0
+
     in_code_block = False
     code_blocks = 0
     for line in body_text.split('\n'):
@@ -99,6 +125,9 @@ def number_of_code_blocks(body_text):
 
 
 def proportion_of_code_to_all_words(body_text):
+    if body_text is not str:
+        return 0
+    
     lines_of_code = number_of_lines_of_code(body_text)
     words = number_of_words(body_text)
     return lines_of_code / (lines_of_code + words / 7.0)
@@ -143,13 +172,25 @@ def number_of_tags(df):
         pd.isnull(x), row)) for row in (df[["Tag%d" % d
         for d in range(1, 6)]].values)]})["NumberOfTags"]
 
+def alt_split(value):
+    if type(value) is str:
+        return value.split()
+    else:        
+        return []
+        
 
 def number_of_words_in_title(df):
-    return df["Title"].apply(lambda x: len(x.split()))
+    return df["Title"].apply(lambda x: len(alt_split(x)))
 
+
+def alt_len(value):
+    if type(value) is str:
+        return len(value)
+    else:
+        return 0
 
 def body_length(df):
-    return df["BodyMarkdown"].apply(len)
+    return df["BodyMarkdown"].apply(alt_len)
 
 
 def title_length(df):
@@ -172,9 +213,9 @@ def get_parser(filename):
     return parser
 
 
-def extract_features(features, parser):
-    all_ff = pd.DataFrame()
-    for df in enumerate(parser):
+def extract_features(features, parser, dtype='float'):
+    all_ff = np.zeros((1, len(features)), dtype=dtype)
+    for i, df in enumerate(parser):
         ff = pd.DataFrame(index=df.index)      
         for name in features:
             if name in df:
@@ -184,7 +225,9 @@ def extract_features(features, parser):
                     ff = ff.join(df[name])
             else:
                 ff = ff.join(getattr(common, camel_to_underscores(name))(df))
-        all_ff = all_ff.append(ff)
+        all_ff = np.vstack( [all_ff, ff.values] )
+        print "%d chunk!" %i,
+    print "done!"        
     return all_ff
 
 
@@ -271,8 +314,23 @@ def cap_predictions(probs, epsilon=0.001):
     probs = probs / row_sums[:, np.newaxis]
     return probs
 
+def prepare_features():
+    import cPickle
+    parser = get_parser(DATA_PATH + "public_leaderboard.csv")
+    train_ff = extract_features(features, parser)
+    print("Features were just extracted! (public_leaderboard.csv)")
+    cPickle.dump(train_ff[1:,], open(DATA_PATH + "small_tables/test.numpy","wb"), protocol=-1)
 
-if __name__ == "__main__":
-    parser = get_parser("train-sample.csv")
-    ff = extract_features(["PostId"], parser)
-    print ff
+    parser = get_parser(DATA_PATH + "train.csv")
+    train_labels = extract_features(["OpenStatus"], parser, 'int32')
+    print("Labels were just extracted! (train.csv)")    
+    cPickle.dump(train_labels[1:,], open(DATA_PATH + "small_tables/testrain_labels.numpy","wb"), protocol=-1)
+    
+    parser = get_parser(DATA_PATH + "train.csv")
+    train_ff = extract_features(features, parser)
+    print("Features were just extracted! (train.csv)")
+    cPickle.dump(train_ff[1:,], open(DATA_PATH + "small_tables/train.numpy","wb"), protocol=-1)
+    
+    
+if __name__ == "__main__":    
+    prepare_features()
